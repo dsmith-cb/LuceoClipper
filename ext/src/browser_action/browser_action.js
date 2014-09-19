@@ -14,7 +14,7 @@ var reqHelper = {
                         var username = settings.get('username');
 
                         reqHelper.postCandidate({
-                            "resume": Base64.encode(request),
+                            "resume": Base64.encode(request.source),
                             "url": host,
                             "system": settings.get('system'),
                             "username": username
