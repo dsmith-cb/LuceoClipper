@@ -8,8 +8,8 @@
     <style type="text/css">
         #mainPopup {
             padding: 10px;
-            height: 50px;
-            width: 150px;
+            height: 75px;
+            width: 200px;
             font-family: Helvetica, Ubuntu, Arial, sans-serif;
         }
 
@@ -65,8 +65,18 @@
 </head>
 <body>
 <div id="mainPopup">
-    <label id="statusLabel"></label>
-    <a id="createCandidateButton" href="#" class="prettyButton">Create Candidate</a>
+    <div id="loadingMessage" style="margin : 3px 3px 3px 3px">
+        <div style="font-size: 12px">
+            <img src="spinner.gif" style="margin : 2px 2px 2px 2px" />
+            Submitting candidate...
+        </div>
+    </div>
+    <div style="margin : 3px 3px 3px 3px">
+        <label id="statusLabel" style="font-size: 12px"></label>
+    </div>
+    <div style="margin : 3px 3px 3px 3px">
+        <a id="createCandidateButton" href="#" class="prettyButton">Create Candidate</a>
+    </div>
 </div>
 </body>
 </html>
