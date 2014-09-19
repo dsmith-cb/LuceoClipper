@@ -27,5 +27,5 @@ function DOMtoString(document_root) {
 
 chrome.extension.sendMessage({
     action: "getSource",
-    source: DOMtoString(document)
+    source:  DOMtoString(document)
 });

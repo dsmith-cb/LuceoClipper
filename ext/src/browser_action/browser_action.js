@@ -1,13 +1,24 @@
+var settings = new Store("settings", {
+    "system": 'https://ws-web-clipper.luceosolutions.com/rest/',
+    "username": 'admin',
+    "password": 'foo'
+});
+
 var reqHelper = {
         initializeListener : function(){
             chrome.extension.onMessage.addListener(function(request, sender) {
                 if (request.action == "getSource") {
-                    //reqHelper.setStatusMessage(request.source);
-                    reqHelper.postRequestion({
-                        "resume": Base64.encode(request.source),
-                        "url": "http://candidate_page.com",
-                        "system": "http://demous-en-full.luceosolutions.com",
-                        "username": "admin"
+                    chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
+                        var host = tabs[0];
+                        var scrubbedResult = reqHelper.scrubElements(request.source, host);
+                        var username = settings.get('username');
+
+                        reqHelper.postCandidate({
+                            "resume": Base64.encode(scrubbedResult),
+                            "url": host,
+                            "system": settings.get('system'),
+                            "username": username
+                        });
                     });
                 }
             });
@@ -15,28 +26,37 @@ var reqHelper = {
         setStatusMessage : function(message){
             jQuery('#statusLabel').text(message);
         },
-        scrubElements : function(document){
-            jQuery(document).removeAll()
+        scrubElements : function(document, host){
+            var elementDoc = jQuery(document);
+            var location = reqHelper.getLocation(host);
+
+            if(location.hostname.indexOf('linkedin') > 0) {
+                return elementDoc.find(".profile-card,.profile-background").text();
+            } else {
+                return elementDoc.remove(".navbar,.footer,.header").text();
+            }
         },
-        postRequestion : function(payload){
+        postCandidate : function(payload){
             reqHelper.setStatusMessage(payload);
 
-            var username = 'admin';
-            var password = 'foo';
+            var username = settings.get('username');
+            var password = settings.get('password');
 
             jQuery.ajax({
-                url: 'http://luceo-web-clipper-api.herokuapp.com/resume',
+                url: 'http://luceo-web-clipper-api.herokuapp.com/index.php/resume',
                 type: 'POST',
                 dataType: 'json',
-                crossDomain: true,
-                data: payload,
+                //crossDomain: true,
+                data: JSON.stringify(payload),
                 contentType: 'application/json',
-                headers: {
-                    "Authorization": "Basic " + btoa(username + ":" + password)
-                },
+                username: username,
+                password: password,
+                /*headers: {
+                 "Authorization": "Basic " + btoa(username + ":" + password)
+                 },*/
                 success: function result(data) {
                     console.log(data);
-                    reqHelper.setStatusMessage("Requisition posted successfully");
+                    reqHelper.setStatusMessage("Candidate posted successfully");
                 },
                 error: function(jqXHR, textStatus, errorThrown){
                     console.log(jqXHR);
@@ -44,6 +64,11 @@ var reqHelper = {
                     reqHelper.setStatusMessage("Error: " + textStatus);
                 }
             });
+        },
+        getLocation : function(host) {
+            var location = document.createElement("a");
+            location.href = host;
+            return location;
         }
 };
 
@@ -53,7 +78,7 @@ var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
 document.addEventListener('DOMContentLoaded', function () {
     reqHelper.initializeListener();
 
-    jQuery('#createReqButton').click(function(){
+    jQuery('#createCandidateButton').click(function(){
         chrome.tabs.executeScript(null, {
             file: "src/browser_action/getPageSource.js"
         }, function() {
