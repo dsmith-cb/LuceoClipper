@@ -10,11 +10,11 @@ var reqHelper = {
                 if (request.action == "getSource") {
                     chrome.tabs.query({ currentWindow: true, active: true }, function (tabs) {
                         var host = tabs[0];
-                        var scrubbedResult = reqHelper.scrubElements(request.source, host);
+                        //var scrubbedResult = reqHelper.scrubElements(request.source, host);
                         var username = settings.get('username');
 
                         reqHelper.postCandidate({
-                            "resume": Base64.encode(scrubbedResult),
+                            "resume": Base64.encode(request),
                             "url": host,
                             "system": settings.get('system'),
                             "username": username
